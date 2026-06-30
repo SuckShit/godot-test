@@ -128,7 +128,7 @@ func _spawn_bullet(direction: Vector2) -> bool:
 		return false
 
 	bullet.top_level = true
-	bullet.setup(direction)
+	bullet.setup(direction, global_position)
 	# 子弹挂载当前场景下，避免跟随玩家节点移动
 	var spawn_parrent := get_tree().current_scene
 	if spawn_parrent == null:
