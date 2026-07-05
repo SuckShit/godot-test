@@ -19,8 +19,8 @@ var player_spawn_position: Vector2 = Vector2.ZERO
 func _ready() -> void:
     remaining_lifetime = bullet_lifetime
     area_entered.connect(_on_area_entered)
-    # 延迟一帧检查初始位置是否在碰撞物体内部，以及是否生成在地图边框外
-    call_deferred("_check_initial_collision")
+    # 延迟检查初始位置是否在碰撞物体内部，以及是否生成在地图边框外
+    # call_deferred("_check_initial_collision")
 
 # 由外部生成子弹后调用，用于注入子弹的初始移动方向和玩家位置
 func setup(initial_direction: Vector2, spawn_position: Vector2 = Vector2.ZERO) -> void:
@@ -33,20 +33,27 @@ func setup(initial_direction: Vector2, spawn_position: Vector2 = Vector2.ZERO) -
 
     rotation = direction.angle()
 
+# 在销毁前生成爆炸粒子效果
+func _explode() -> void:
+    var explosion := Explosion.new()
+    get_parent().add_child(explosion)
+    explosion.global_position = global_position
+    queue_free()
+
 # 每帧先检测子弹飞行路径是否会与世界发生碰撞，再更新位置并处理超时回收
 func _physics_process(delta: float) -> void:
     var current_position := global_position
     var new_position := current_position + direction * bullet_speed * delta
 
     if _will_hit_world(current_position, new_position):
-        queue_free()
+        _explode()
         return
     
     global_position = new_position
     # 没有命中，也要在超时后销毁子弹，防止无限存在
     remaining_lifetime -= delta
     if remaining_lifetime <= 0:
-        queue_free()
+        _explode()
 
 # 检查子弹初始位置：
 # 1. 是否在碰撞物体内部（点查询）
@@ -66,14 +73,14 @@ func _check_initial_collision() -> void:
     var results: Array[Dictionary] = space_state.intersect_point(query)
     if not results.is_empty():
         # 子弹生成在碰撞物体内部，立即销毁
-        queue_free()
+        _explode()
         return
     
     # 如果有玩家生成位置，做射线检测：如果玩家和子弹之间有世界边框（SegmentShape2D），
     # 说明子弹生成在了地图边框之外（例如玩家贴着边界射击），立即销毁
     if player_spawn_position != Vector2.ZERO and global_position != player_spawn_position:
         if _will_hit_world(player_spawn_position, global_position):
-            queue_free()
+            _explode()
 
 # 使用射线查询检测当前这一帧的飞行路径，避免子弹穿过零厚度边界或薄墙体
 func _will_hit_world(from_position: Vector2, to_position: Vector2) -> bool:
@@ -91,6 +98,6 @@ func _will_hit_world(from_position: Vector2, to_position: Vector2) -> bool:
 # 当子弹与其他Area2D发生碰撞后销毁，但忽略与其他子弹的碰撞
 func _on_area_entered(area: Area2D) -> void:
     if area is Bullet:
-        return  # Ignore collisions with other bullets
+        return
 
-    queue_free()  # Destroy the bullet on collision with any other area
+    _explode()
