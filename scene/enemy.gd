@@ -27,6 +27,9 @@ enum DeathSequenceStage {
 @onready var touch_damage_shape: CollisionShape2D = $TouchDamageArea/CollisionShape2D
 @onready var explosion_area: Area2D = $ExplosionArea
 @onready var explosion_shape: CollisionShape2D = $ExplosionArea/CollisionShape2D
+@onready var hit_bgm: AudioStreamPlayer = $AudioContainer/HitPlayer
+@onready var die_bgm: AudioStreamPlayer = $AudioContainer/DiePlayer
+@onready var explosion_bgm: AudioStreamPlayer = $AudioContainer/ExplodePlayer
 
 # 当前追踪的玩家对象，由敌人管理器在生成时注入
 var target_player: Player = null
@@ -83,6 +86,8 @@ func apply_damage(amount: int) -> bool:
         return true
     
     _start_hurt_blink()
+    _play_sfx(hit_bgm)
+
     return true
 
 # 每帧处理移动，接触伤害和受击闪烁
@@ -249,6 +254,8 @@ func _start_death_seq() -> void:
         queue_free()
         return
 
+    _play_sfx(die_bgm)
+
     if _play_death_seq_animation(config.death_animation_name, DeathSequenceStage.DEATH):
         return
 
@@ -269,6 +276,7 @@ func _start_explosion_seq() -> void:
         return
 
     _try_apply_explosion_damage()
+    _play_sfx(explosion_bgm)
 
     if _play_death_seq_animation(config.explosion_animation_name, DeathSequenceStage.EXPLOSION):
         return
@@ -423,3 +431,11 @@ func _on_animated_sprite_animation_finished() -> void:
             queue_free()
         _:
             queue_free()
+
+# 一次性音乐统一使用停止后再播放模式，保证重复触发时从头播放
+func _play_sfx(audio: AudioStreamPlayer) -> void:
+    if audio == null or audio.stream == null:
+        return
+
+    audio.stop()
+    audio.play()

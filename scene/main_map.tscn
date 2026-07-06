@@ -117,7 +117,7 @@ tile_set = SubResource("TileSet_eg0p3")
 
 [node name="Camera2D" type="Camera2D" parent="." unique_id=557653448]
 offset = Vector2(128, 128)
-zoom = Vector2(2, 2)
+zoom = Vector2(1.8, 1.8)
 
 [node name="Player" parent="." unique_id=1046195329 instance=ExtResource("3_4jeie")]
 position = Vector2(119, 88)
@@ -161,32 +161,30 @@ position = Vector2(144, 248)
 
 [node name="HudLayer" type="Node2D" parent="." unique_id=1212869921]
 
-[node name="LifeIcon" type="Sprite2D" parent="HudLayer" unique_id=454682590]
-position = Vector2(-48, 8)
-scale = Vector2(1, 1.2272727)
-texture = ExtResource("5_arx8d")
-region_enabled = true
-region_rect = Rect2(0, 18, 16, 11)
-
-[node name="LifeCntLabel" type="Label" parent="HudLayer" unique_id=635348825]
-offset_left = -34.0
-offset_right = -5.0
-offset_bottom = 23.0
-theme_override_fonts/font = ExtResource("6_w3aho")
-text = "X 5"
-metadata/_edit_use_anchors_ = true
+[node name="HeartContainer" type="Node2D" parent="HudLayer" unique_id=454682590]
+position = Vector2(15, -35)
 
 [node name="TimeIcon" type="Sprite2D" parent="HudLayer" unique_id=143887831]
-position = Vector2(16, -16)
+position = Vector2(15.75, -15.25)
+scale = Vector2(1.4090909, 1.1153846)
 texture = ExtResource("5_arx8d")
 region_enabled = true
 region_rect = Rect2(3, 2, 11, 13)
 
 [node name="TimeBar" type="Sprite2D" parent="HudLayer" unique_id=443620490]
-position = Vector2(132, -16)
+position = Vector2(136, -20)
 scale = Vector2(4.5, 1)
 texture = SubResource("AtlasTexture_arx8d")
 region_rect = Rect2(16, 6, 48, 7)
+
+[node name="TimeLeftLabel" type="Label" parent="HudLayer" unique_id=127534195]
+offset_left = 29.0
+offset_top = -14.0
+offset_right = 48.0
+offset_bottom = -3.0
+theme_override_fonts/font = ExtResource("6_w3aho")
+theme_override_font_sizes/font_size = 10
+text = "60"
 
 [node name="AcceptDialog" type="AcceptDialog" parent="." unique_id=1939618476]
 process_mode = 2
@@ -202,6 +200,7 @@ dialog_text = "强强"
 
 [node name="BgmPlayer" type="AudioStreamPlayer" parent="AudioContainer" unique_id=238163561]
 stream = ExtResource("7_gda3u")
+autoplay = true
 
 [node name="WinPlayer" type="AudioStreamPlayer" parent="AudioContainer" unique_id=432088579]
 process_mode = 2

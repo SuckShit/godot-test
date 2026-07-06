@@ -18,6 +18,9 @@ const WORLD_COLLISION_MASK := 1
 @onready var armed_effect_sprite: AnimatedSprite2D = $ArmedEffSprite
 # 射击计时器，只负责限制开火频率
 @onready var shooting_timer: Timer = $ShootingTimer
+@onready var shooting_player: AudioStreamPlayer = $AudioContainer/ShootPlayer
+@onready var move_player: AudioStreamPlayer = $AudioContainer/MovePlayer
+@onready var pickup_player: AudioStreamPlayer = $AudioContainer/PickupPlayer
 
 # 当前朝向后缀
 var facing_suffix: StringName = &"right"
@@ -72,15 +75,18 @@ func _physics_process(_delta: float) -> void:
 
 	if is_dead:
 		velocity = Vector2.ZERO
+		_set_move_sfx_active(false)
 		return
 
 	# 读取四个方向的输入，并得到标准化后的八向输入向量
 	var move_input := Input.get_vector("move_left", "move_right", "move_up", "move_down")
 	var shot_input := Input.get_vector("shot_left", "shot_right", "shot_up", "shot_down")
+	var is_moving := move_input != Vector2.ZERO
 
 	# CharacterBody2D的velocity属性用于控制移动速度，move_and_slide()方法会根据当前速度和碰撞信息更新位置
 	velocity = move_input * _get_effective_move_speed()
 	move_and_slide()
+	_set_move_sfx_active(is_moving)
 
 	if current_shot_pattern == PickupConfig.ShotPattern.SPIRAL:
 		_try_auto_shoot_spiral()
@@ -126,7 +132,8 @@ func _try_shoot(shot_input: Vector2) -> void:
 	var shoot_direction := shot_input.normalized()
 	var if_spawned_bullet := _fire_bullet(shoot_direction)
 	if if_spawned_bullet:
-		shooting_timer.start(_get_effective_fire_interval())
+		_play_sfx(shooting_player)
+	shooting_timer.start(_get_effective_fire_interval())
 
 # 道具统一通过这个入口影响玩家，Pickup场景不直接修改玩家内部细节
 func apply_pickup(config: PickupConfig) -> bool:
@@ -170,6 +177,8 @@ func apply_pickup(config: PickupConfig) -> bool:
 	
 	if should_refresh_shooting_timer:
 		_refresh_shooting_timer_wait_time()
+	if applied:
+		_play_sfx(pickup_player)
 
 	return applied
 
@@ -252,7 +261,8 @@ func _try_auto_shoot_spiral() -> void:
 	var spiral_direction := Vector2.RIGHT.rotated(spiral_phase)
 	var is_spawned_bullet := _fire_bullet(spiral_direction)
 	if is_spawned_bullet:
-		shooting_timer.start(_get_effective_fire_interval())
+		_play_sfx(shooting_player)
+	shooting_timer.start(_get_effective_fire_interval())
 
 # 每帧跟新道具buff剩余时间，并在到期后恢复默认
 func _update_pickup_effects(delta: float) -> void:
@@ -339,6 +349,7 @@ func _die() -> void:
 	immune_time_left = 0.0
 	_set_hurt_blink_enabled(false)
 	shooting_timer.stop()
+	_set_move_sfx_active(false)
 	armed_effect_sprite.visible = false
 	armed_effect_sprite.stop()
 	body_sprite.play("death")
@@ -382,6 +393,35 @@ func _update_armed_effect() -> void:
 
 	if armed_effect_sprite.sprite_frames.has_animation(&"default"):
 		armed_effect_sprite.play(&"default")	
+
+# 主场景结束时统一结束所有运行时玩家音乐播放
+func stop_runtime_audio() -> void:
+	_set_move_sfx_active(false)
+	if shooting_player != null and shooting_player.playing:
+		shooting_player.stop()
+	if pickup_player != null and pickup_player.playing:
+		pickup_player.stop()
+
+# 根据移动状态启停音效
+func _set_move_sfx_active(active: bool) -> void:
+	if move_player == null or move_player.stream == null:
+		return
+
+	if active:
+		if not move_player.playing:
+			move_player.play()
+		return
+
+	if move_player.playing:
+		move_player.stop()
+
+# 一次性音乐统一使用停止后再播放模式，保证重复触发时从头播放
+func _play_sfx(audio: AudioStreamPlayer) -> void:
+	if audio == null or audio.stream == null:
+		return
+
+	audio.stop()
+	audio.play()
 
 # 将任意二维向量映射为四个方向的后缀，用于选择动画
 func _vector_to_facing_suffix(direction: Vector2) -> StringName:		
