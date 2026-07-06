@@ -1,0 +1,19 @@
+[gd_resource type="Resource" script_class="EnemyConfig" format=3 uid="uid://dq3j23fisdoas"]
+
+[ext_resource type="SpriteFrames" uid="uid://c1vqm6a03h3dn" path="res://resources/animation/enemy_shelled.tres" id="1_7hcef"]
+[ext_resource type="Script" uid="uid://cql7ecje7msks" path="res://resources/config/pickup_config.gd" id="1_ax6jx"]
+[ext_resource type="Resource" uid="uid://br3i5f35twftm" path="res://resources/config/pickup_rapid.tres" id="2_7hcef"]
+[ext_resource type="Resource" uid="uid://dlukj4ne1erlb" path="res://resources/config/pickup_speed.tres" id="3_7rafb"]
+[ext_resource type="Resource" uid="uid://d32oj0m5ax4xr" path="res://resources/config/pickup_spiral.tres" id="4_jot1f"]
+[ext_resource type="Script" uid="uid://c0y41l1h7t4ju" path="res://resources/config/enemy_config.gd" id="5_jilfn"]
+
+[resource]
+script = ExtResource("5_jilfn")
+enemy_type = 2
+display_name = "甲壳敌人"
+max_health = 6
+move_speed = 10.0
+collision_radius = 10.0
+enemy_frames = ExtResource("1_7hcef")
+pickup_drop_chance = 0.8
+metadata/_custom_type_script = "uid://c0y41l1h7t4ju"

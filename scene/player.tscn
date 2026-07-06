@@ -2,7 +2,17 @@
 
 [ext_resource type="Script" uid="uid://m4kir4egdw3f" path="res://scene/player.gd" id="1_fvtld"]
 [ext_resource type="Texture2D" uid="uid://smg3hhfxlp5n" path="res://resources/texture/W.png" id="1_hjaqi"]
+[ext_resource type="Shader" uid="uid://bhdrgr3x0hab" path="res://scene/blink.gdshader" id="2_ct4mp"]
 [ext_resource type="Texture2D" uid="uid://gyeu8aao8pwe" path="res://resources/texture/浮游炮.png" id="2_fvtld"]
+[ext_resource type="AudioStream" uid="uid://dkdomita5ck78" path="res://resources/audio/Cowboy_gunshot.wav" id="5_hp4bs"]
+[ext_resource type="AudioStream" uid="uid://ef31sx71kcjh" path="res://resources/audio/cowboy_gopher.wav" id="6_g2vtq"]
+[ext_resource type="AudioStream" uid="uid://dkpw4r05arwbf" path="res://resources/audio/cowboy_powerup.wav" id="7_2fvbb"]
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_jf1kb"]
+shader = ExtResource("2_ct4mp")
+shader_parameter/blink_enabled = false
+shader_parameter/blink_speed = 12.0
+shader_parameter/hidden_ratio = 0.5
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_ct4mp"]
 atlas = ExtResource("1_hjaqi")
@@ -238,7 +248,7 @@ animations = [{
 "duration": 1.0,
 "texture": SubResource("AtlasTexture_wt23p")
 }],
-"loop": 1,
+"loop": 0,
 "name": &"death",
 "speed": 8.0
 }, {
@@ -376,16 +386,17 @@ animations = [{
 }]
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_ogq8d"]
-radius = 7.0
+radius = 6.0
 
 [node name="Player" type="CharacterBody2D" unique_id=1046195329]
+collision_layer = 2
 script = ExtResource("1_fvtld")
 
 [node name="BodySprite" type="AnimatedSprite2D" parent="." unique_id=132933468]
+material = SubResource("ShaderMaterial_jf1kb")
 sprite_frames = SubResource("SpriteFrames_ogq8d")
-animation = &"normal_right"
+animation = &"death"
 autoplay = "normal_right"
-frame_progress = 0.18120316
 
 [node name="ArmedEffSprite" type="AnimatedSprite2D" parent="." unique_id=434217123]
 visible = false
@@ -398,3 +409,14 @@ frame_progress = 0.29390147
 shape = SubResource("CircleShape2D_ogq8d")
 
 [node name="ShootingTimer" type="Timer" parent="." unique_id=393556991]
+
+[node name="AudioContainer" type="Node" parent="." unique_id=1029307659]
+
+[node name="ShootPlayer" type="AudioStreamPlayer" parent="AudioContainer" unique_id=196899020]
+stream = ExtResource("5_hp4bs")
+
+[node name="MovePlayer" type="AudioStreamPlayer" parent="AudioContainer" unique_id=993313815]
+stream = ExtResource("6_g2vtq")
+
+[node name="PickupPlayer" type="AudioStreamPlayer" parent="AudioContainer" unique_id=608212900]
+stream = ExtResource("7_2fvbb")

@@ -1,0 +1,21 @@
+[gd_resource type="Resource" script_class="EnemyConfig" format=3 uid="uid://btbdsbqhcsiwb"]
+
+[ext_resource type="Script" uid="uid://cql7ecje7msks" path="res://resources/config/pickup_config.gd" id="1_hc82q"]
+[ext_resource type="SpriteFrames" uid="uid://c6ujud7435s3r" path="res://resources/animation/enemy_bomber.tres" id="1_oc0ap"]
+[ext_resource type="Resource" uid="uid://br3i5f35twftm" path="res://resources/config/pickup_rapid.tres" id="2_oc0ap"]
+[ext_resource type="Resource" uid="uid://dlukj4ne1erlb" path="res://resources/config/pickup_speed.tres" id="3_5h5rh"]
+[ext_resource type="Resource" uid="uid://d32oj0m5ax4xr" path="res://resources/config/pickup_spiral.tres" id="4_c45uq"]
+[ext_resource type="Script" uid="uid://c0y41l1h7t4ju" path="res://resources/config/enemy_config.gd" id="5_aqmj5"]
+
+[resource]
+script = ExtResource("5_aqmj5")
+enemy_type = 3
+display_name = "自爆敌人"
+max_health = 2
+move_speed = 15.0
+enemy_frames = ExtResource("1_oc0ap")
+explode_on_death = true
+explosion_damage = 2
+explosion_radius = 30.0
+pickup_drop_chance = 0.8
+metadata/_custom_type_script = "uid://c0y41l1h7t4ju"
